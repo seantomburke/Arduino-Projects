@@ -1,25 +1,25 @@
 /*
-// Code for Alarm clock with visual alarm
- 
- 
+ * Alarm Clock Gadgetron Arduino Project
+ * Created on: May 15, 2014
+ * Modified on: May 20, 2014
+ * Author: Sean Thomas Burke
  
  */
-// give it a name:
-static float realtime = 100;
-static float timeout = 10;
-static int clock_delay = 60;
-static int clock_multiplier = 1;
-static int clock_increment = 1;
-int clock_time = clock_multiplier*clock_delay;
+ 
+static float realtime = 100;  //delay for entire system
+static float timeout = 10;  //timeout cycles for the alarm
+static int clock_delay = 60; //number of seconds in a minute
+static int clock_multiplier = 10; //delay multiplier for the clock minutes 
+static int clock_increment = 1;  //discrete value interval when setting time
+int clock_time = clock_multiplier*clock_delay; //delay for minutes
 
-int seconds = 0;
-int time = 120;
-int alarm = 130;
-int clock = 0;
-int animation_time = (250);
+int seconds = 0; //initialize seconds to zero
+int time = 0; //current time in minutes
+int alarm = 130; //current alarm in minutes
+int clock = 0; //initialize clock to zero
+int animation_time = (250); //delay for the animation (not used)
 
-int input[] = {
-  0,1};
+int input[] = {0,1}; //not input anymore, used for alarm and led output
 int pins[] = {
   2,3,4,5,6,7,8,9,10,11,12,13};
 int values[] = {
@@ -53,6 +53,8 @@ void setup() {
     digitalWrite(pins[i], values[i]);
   }  
 }
+
+//show the time on the clock, offset makes sure to show 12:00 instead of 0:00
 void show(int time, boolean offset)
 {
   (time %= 779);
@@ -89,6 +91,8 @@ void show(int time, boolean offset)
 
 }
 
+
+//Blink the LED and Sound the buzzer
 void blinker(int frame){
   frame %= 6;
   if(frame > 3)
@@ -102,6 +106,7 @@ void blinker(int frame){
   }
 }
 
+//animate the display, (was used for alarm)
 void animate(int frame)
 {
   frame = (frame % animation_time*10);
@@ -204,12 +209,15 @@ void animate(int frame)
 
   delay(animation_time);
 }
+
+//convert the dial input into a time
 int convert_input(int input)
 {
   float range = (720.0)/((1024.0-520.0));
   int temp = ((input-520)*range);
   return (temp/clock_increment)*clock_increment; 
 }
+
 // the loop routine runs over and over again forever:
 void loop() {
 
@@ -223,24 +231,28 @@ void loop() {
   dial_input = analogRead(A2);
   snooze_button = (analogRead(A3)>128)?HIGH:LOW;
   
+  //set the time with the dial
   if(set_time == HIGH)
   {
     time = convert_input(dial_input);
     show(time,true);
   }
-
+  
+  //set alarm with dial
   if(set_alarm == HIGH)
   {
     alarm = convert_input(dial_input);
     show(alarm,true);
     snooze = false;
   }
+  //if snooze, then snooze, also used to show seconds
   else if(snooze_button == HIGH)
   {
     snooze = true;
     show(seconds,false);
     noTone(0);
   }
+  //if alarm is ready to go off, then blink
   else if((time >= alarm) && time <= (alarm + timeout))
   {
     show(time,true);
@@ -249,21 +261,25 @@ void loop() {
       blinker(alarm_timer);
     }
   }
+  //all else, just show the time
   else
   {
     show(time,true);
   }
-
+  
   delay(realtime);
   //tone(0, dial_input*100);
   clock++;
   alarm_timer++;
   
+  //increment clock minutes
   if(clock % clock_time == 0)
   {
     time++;
     clock = 0;
   }
+  
+  //increment seconds from 0 to 59
   if(clock % clock_multiplier == 0){
     seconds++;
     if(seconds % clock_delay == 0)
@@ -271,7 +287,8 @@ void loop() {
      seconds = 0; 
     }
   }
-
+  
+  //sets the LED to on if alarm is set, off if it is not.
   if(snooze == false)
   {
     digitalWrite(1,HIGH);
