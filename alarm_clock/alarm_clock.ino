@@ -10,7 +10,7 @@ static float realtime = 100;  //delay for entire system
 static float timeout = 10;  //timeout cycles for the alarm
 static int clock_delay = 60; //number of seconds in a minute
 static int clock_multiplier = 10; //delay multiplier for the clock minutes 
-static int clock_increment = 1;  //discrete value interval when setting time
+static int clock_increment = 5;  //discrete value interval when setting time
 int clock_time = clock_multiplier*clock_delay; //delay for minutes
 
 int seconds = 0; //initialize seconds to zero
@@ -235,6 +235,8 @@ void loop() {
   if(set_time == HIGH)
   {
     time = convert_input(dial_input);
+    seconds = 0;
+    clock = 0;
     show(time,true);
   }
   
@@ -265,6 +267,16 @@ void loop() {
   else
   {
     show(time,true);
+    
+    //sets the LED to on if alarm is set, off if it is not.
+    if(snooze == false)
+    {
+      digitalWrite(1,HIGH);
+    }
+    else
+    {
+      digitalWrite(1,LOW);
+    }
   }
   
   delay(realtime);
@@ -288,15 +300,6 @@ void loop() {
     }
   }
   
-  //sets the LED to on if alarm is set, off if it is not.
-  if(snooze == false)
-  {
-    digitalWrite(1,HIGH);
-  }
-  else
-  {
-    digitalWrite(1,LOW);
-  }
 }
 
 
