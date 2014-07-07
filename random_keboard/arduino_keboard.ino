@@ -1,4 +1,8 @@
-/* Arduino USB Keyboard HID demo
+/* 
+ * Arduino USB Keyboard HID demo
+ * Sean Burke <sean@seantburke.com>
+ * Created: 5/23/2014
+ * Modified: 5/23/2014
  * code+/code-/code keys
  */
  
